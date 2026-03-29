@@ -28,17 +28,17 @@ async def cmd_start(message: types.Message):
     )
 
 @dp.callback_query(F.data == "gen_photo")
-async def press_gen_photo(callback: types.Callback_query):
+async def press_gen_photo(callback: types.CallbackQuery):
     await callback.message.answer("🖼 **Режим фото.** Напиши, что мне нарисовать? (например: 'Кот в космосе в стиле киберпанк')")
     await callback.answer()
 
 @dp.callback_query(F.data == "gen_video")
-async def press_gen_video(callback: types.Callback_query):
+async def press_gen_video(callback: types.CallbackQuery):
     await callback.message.answer("🎥 **Режим видео.** Опиши короткую сцену, которую хочешь оживить:")
     await callback.answer()
 
 @dp.callback_query(F.data == "edit_media")
-async def press_edit_media(callback: types.Callback_query):
+async def press_edit_media(callback: types.CallbackQuery):
     await callback.message.answer("📸 **Режим правки.** Просто пришли мне фото или видео, а в описании к нему напиши, что нужно изменить.")
     await callback.answer()
 
@@ -46,20 +46,21 @@ async def press_edit_media(callback: types.Callback_query):
 @dp.message(F.photo)
 async def handle_user_photo(message: types.Message):
     await message.reply("📸 Я получил твое фото! Дай мне секунду, чтобы проанализировать его...")
-    # Здесь в будущем будет логика изменения через ИИ
 
 # Хендлер для любого текста (если это описание для генерации)
-@dp.message(F.text & ~F.status_text.startswith('/'))
+@dp.message(F.text)
 async def handle_text_requests(message: types.Message):
+    # Игнорируем команды, чтобы не было конфликтов
+    if message.text.startswith('/'):
+        return
     await message.answer("🛠 Принял запрос! Начинаю обработку в Friden AI Core... 🚀")
-    # Здесь будет вызов API для генерации
 
 async def main():
-    print("🚀 Бот Friden AI запущен и готов генерировать!")
+    print("🚀 Бот Friden AI запущен!")
     await dp.start_polling(bot)
 
 if __name__ == '__main__':
     try:
         asyncio.run(main())
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, SystemExit):
         print("Бот выключен")
